@@ -4,6 +4,10 @@ const ArrayList = std.ArrayList;
 const ChildProcess = std.ChildProcess;
 const dotenv = @import("./dotenv.zig");
 
+// TODO: support custom .env file.
+// TODO: support multiple .env files and make it overridable.
+// TODO: use stdin, stdout and stderr from the parent without do manual print.
+
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     defer std.debug.assert(gpa.deinit() == .ok);
