@@ -6,7 +6,6 @@ const dotenv = @import("./dotenv.zig");
 
 // TODO: support custom .env file.
 // TODO: support multiple .env files and make it overridable.
-// TODO: use stdin, stdout and stderr from the parent without do manual print.
 
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
