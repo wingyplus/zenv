@@ -1,8 +1,7 @@
 const std = @import("std");
-const EnvMap = std.process.EnvMap;
-const StringHashMap = std.StringHashMap;
-const testing = std.testing;
 const mem = std.mem;
+const testing = std.testing;
+const EnvMap = std.process.EnvMap;
 
 const spaces = " \t";
 
@@ -21,8 +20,28 @@ fn validateKey(key: []const u8) ![]const u8 {
 
 const Quote = enum { single, double };
 
-// TODO: No spaces prefix.
+fn determineQuote(ch: u8) ?Quote {
+    switch (ch) {
+        '\'' => return Quote.single,
+        '"' => return Quote.double,
+        else => return null,
+    }
+}
+
+fn hasSpacesPrefix(value: []const u8) bool {
+    var found_any_ch = false;
+    for (value) |ch| {
+        if (ch == ' ' and !found_any_ch) {
+            return true;
+        }
+    }
+    return false;
+}
+
 fn parseValue(value: []const u8) ![]const u8 {
+    if (hasSpacesPrefix(value)) {
+        return ParseError.IllegalCharacter;
+    }
     if (determineQuote(value[0])) |beginQuote| {
         if (determineQuote(value[value.len - 1])) |endQuote| {
             // begin and end quote should be the same.
@@ -33,14 +52,6 @@ fn parseValue(value: []const u8) ![]const u8 {
         }
     }
     return value;
-}
-
-fn determineQuote(ch: u8) ?Quote {
-    switch (ch) {
-        '\'' => return Quote.single,
-        '"' => return Quote.double,
-        else => return null,
-    }
 }
 
 pub fn parse(allocator: mem.Allocator, content: []const u8) !EnvMap {
@@ -77,4 +88,12 @@ test "parse" {
     try testing.expectEqualStrings(env.get("K3") orelse @panic("K3 must present"), "V3");
     try testing.expectEqualStrings(env.get("K4") orelse @panic("K4 must present"), "V4");
     try testing.expectEqualStrings(env.get("K5") orelse @panic("K5 must present"), "V5");
+}
+
+test "parse error" {
+    const dot_env =
+        \\K=   V
+    ;
+
+    try testing.expectError(ParseError.IllegalCharacter, parse(testing.allocator, dot_env));
 }

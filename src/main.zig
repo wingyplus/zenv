@@ -1,6 +1,4 @@
 const std = @import("std");
-const fs = std.fs;
-const ArrayList = std.ArrayList;
 const ChildProcess = std.ChildProcess;
 const dotenv = @import("./dotenv.zig");
 
