@@ -19,11 +19,12 @@ pub fn main() !void {
     var args = try std.process.argsAlloc(allocator);
     defer std.process.argsFree(allocator, args);
 
-    var result = try ChildProcess.exec(.{ .allocator = allocator, .argv = args[1..], .env_map = &env_map });
-    defer allocator.free(result.stdout);
-    defer allocator.free(result.stderr);
-
-    std.debug.print("{s}\n", .{result.stdout});
+    var proc = ChildProcess.init(args[1..], allocator);
+    proc.env_map = &env_map;
+    proc.stdin = std.io.getStdIn();
+    proc.stdout = std.io.getStdOut();
+    proc.stderr = std.io.getStdErr();
+    _ = try proc.spawnAndWait();
 }
 
 test {
